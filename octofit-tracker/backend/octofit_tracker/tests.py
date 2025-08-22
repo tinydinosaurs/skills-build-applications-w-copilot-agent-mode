@@ -1,31 +1,27 @@
 from django.test import TestCase
-from .models import User, Team, Activity, Leaderboard, Workout
+from .models import User, Team, Activity, Workout, Leaderboard
 
-class UserModelTest(TestCase):
-    def test_create_user(self):
-        user = User.objects.create(name='Test', email='test@example.com', team='marvel')
-        self.assertEqual(user.name, 'Test')
-        self.assertEqual(user.email, 'test@example.com')
-        self.assertEqual(user.team, 'marvel')
+class ModelTests(TestCase):
+	def setUp(self):
+		self.team = Team.objects.create(name="Marvel", description="Marvel Superheroes")
+		self.user = User.objects.create(name="Spider-Man", email="spiderman@marvel.com", team=self.team)
+		self.workout = Workout.objects.create(name="Cardio", description="Cardio workout")
+		self.workout.suggested_for.add(self.team)
+		self.activity = Activity.objects.create(user=self.user, type="Running", duration=30, calories=300, date="2025-08-22")
+		self.leaderboard = Leaderboard.objects.create(team=self.team, points=100, rank=1)
 
-class TeamModelTest(TestCase):
-    def test_create_team(self):
-        team = Team.objects.create(name='marvel', description='Marvel Team')
-        self.assertEqual(team.name, 'marvel')
+	def test_user_creation(self):
+		self.assertEqual(self.user.name, "Spider-Man")
+		self.assertEqual(self.user.team.name, "Marvel")
 
-class ActivityModelTest(TestCase):
-    def test_create_activity(self):
-        user = User.objects.create(name='Test', email='test@example.com', team='marvel')
-        activity = Activity.objects.create(user=user, type='run', duration=30, date='2025-08-22')
-        self.assertEqual(activity.type, 'run')
+	def test_team_creation(self):
+		self.assertEqual(self.team.name, "Marvel")
 
-class LeaderboardModelTest(TestCase):
-    def test_create_leaderboard(self):
-        team = Team.objects.create(name='marvel', description='Marvel Team')
-        leaderboard = Leaderboard.objects.create(team=team, points=100)
-        self.assertEqual(leaderboard.points, 100)
+	def test_activity_creation(self):
+		self.assertEqual(self.activity.type, "Running")
 
-class WorkoutModelTest(TestCase):
-    def test_create_workout(self):
-        workout = Workout.objects.create(name='Pushups', description='Do pushups', difficulty='easy')
-        self.assertEqual(workout.name, 'Pushups')
+	def test_workout_creation(self):
+		self.assertEqual(self.workout.name, "Cardio")
+
+	def test_leaderboard_creation(self):
+		self.assertEqual(self.leaderboard.points, 100)
